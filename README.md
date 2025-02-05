@@ -2,19 +2,19 @@
 
 ---
 
-###### PL
-
 ![Python version](https://img.shields.io/badge/python-3.12%2B-yellow.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+![Promo](/assets/images/promo.jpg)
+
+---
+
+###### PL
 
 # Analiza ofert pracy
 
 > [!CAUTION]
 > Zaimportuj własne wnioski!
-
-![Promo](docs/images/promo.png)
-
----
 
 ## Spis treści
 1. [Wstęp](#wstęp)  
@@ -43,7 +43,7 @@ W obecnej wersji:
    - Pobierz zestaw danych z [Kaggle](https://www.kaggle.com/datasets/jszafranqb/justjoinit-job-offers-data-2021-10-2023-09) i umieść go w folderze `data/raw/downloaded_offers`. Następnie uruchom skrypt `etl.py`, który pobierze i przetworzy pliki JSON do bazy danych
    - Stwórz plik `links.txt` w katalogu `data` i wklej linki do ofert z JustJoinIT. Kolejno uruchom `main.py` w katalogu `app`, który pobierze i przetworzy oferty do bazy danych
 5. **Uruchom Jupyter Notebook**:\
-Przejdź do katalogu `notebooks` przy użyciu terminala i uruchom Jupyter Notebook za pomocą komendy `jupyter notebook`. Uruchomi się domyślna przeglądarka z interfejsem Jupyter – tam znajdziesz m.in. plik `job_analysis.ipynb`, który można otworzyć w celu przeglądu i wizualizacji danych. Trzeba pamiętać, że trzeba go uruchomić od samego początku aż do końca (wszystkie "cell'e")
+Przejdź do katalogu `notebooks` i przy użyciu terminala i uruchom Jupyter Notebook za pomocą komendy `jupyter notebook`. Możesz także odpalić ręcznie plik `jupyter_notebook_launcher.bat`. Uruchomi się domyślna przeglądarka z interfejsem Jupyter – tam znajdziesz m.in. plik `job_analysis.ipynb`, który można otworzyć w celu przeglądu i wizualizacji danych. Trzeba pamiętać, że trzeba go uruchomić od samego początku aż do końca (wszystkie "cell'e")
 > [!TIP]
 > Jeżeli Twój plik z linkami zawiera nie tylko oferty, użyj funkcji `sort_raw_offers_file()` w klasie `Utilities` w lokalizacji `app/utilities.py`, aby odfiltrować tylko oferty pracy
 
@@ -70,9 +70,57 @@ Projekt jest rozwijany w ramach nauki i zdobywania nowych umiejętności, podcza
 
 ###### EN
 
-# Analyzing job offers
+# Job analysis
+
+> [!CAUTION]
+> Import your own conclusions!
+
+## Table of contents
+1. [Introduction](#introduction)  
+2. [User manual](#user-manual)  
+3. [Development plans](#development-plans)  
+4. [Additional information](#additional-information )
 
 ## Introduction
-This project is about analyzing job offers.
-The goal is to extract information from job offers and to analyze the job market.
-The project is divided into two parts: the first part is about extracting information from job offers and the second part is about analyzing the job market. The project is based on the data from the job offers website [Indeed](https://www.indeed.com/). The project is written in Python and uses the following libraries: [pandas](https://pandas.pydata.org/), [numpy](https://numpy.org/), [matplotlib](https://matplotlib.org/), [seaborn](https://seaborn.pydata.org/), [scikit-learn](https://scikit-learn.org/), [nltk](https://www.nltk.org/), [wordcloud](
+The project is used for **analysis** and **visualization** of job offer data in the IT industry.
+In the current version:
+- Mainly listings from [JustJoinIT](https://justjoin.it/) are supported
+- Data can be retrieved both from **JSON files** (attached or downloaded from Kaggle) and by using a prepared list of **links** to ads
+> [!IMPORTANT]
+> The **JSON files** are for the period from **2021-10 to 2023-09**.  
+> The data is available in the repository [Kaggle](https://www.kaggle.com/datasets/jszafranqb/justjoinit-job-offers-data-2021-10-2023-09)  
+> They should be placed in the location `data/raw/downloaded_offers`.
+
+## User Manual
+1. **Download the repository**:\
+```git clone https://github.com/TwojeKonto/analyzing_job_offers.git```
+2. **Go to project location**:\
+```cd analyzing_job_offers```
+3. **Install the required libraries**:\
+```pip install -r requirements.txt```
+4. **Select a data source**:
+   - Download the dataset from [Kaggle](https://www.kaggle.com/datasets/jszafranqb/justjoinit-job-offers-data-2021-10-2023-09) and place them in the folder `data/raw/downloaded_offers`. Then run the script `etl.py`, which will download and parse the JSON files into the database
+   - Create a file `links.txt` in folder `data` and paste links to your listings from JustJoinIT. Next, run `main.py` in the `app` directory, which will download and process the listings to the database
+5. **Launch Jupyter Notebook**:\
+Navigate to the `notebooks` directory and using a terminal and launch Jupyter Notebook using the `jupyter notebook` command. You can also fire up the `jupyter_notebook_launcher.bat` file manually. It will launch the default browser with Jupyter interface - there you will find, among other things, the `job_analysis.ipynb` file, which you can open to review and visualize the data. Keep in mind that you need to run it from the very beginning all the way to the end (all “cells”)
+> [!TIP]
+> If your link file contains more than just listings, use the `sort_raw_offers_file()` function in the `Utilities` class in the `app/utilities.py` location to filter out only job listings
+
+## Development plans
+- Supporting multiple job sites and data sources (Pracuj.pl, LinkedIn, No Fluff Jobs)
+- Design of structures, optimization and implementation of other databases (PostgreSQL, MongoDB, Apache Cassandra)
+- Implementation of AI agent to:
+  - talk to users to draw conclusions from analyzed job offers
+  - easier filtering of key findings from offers
+- Enhance visualization with new features and interactive charts
+- Creation of a GUI to operate the application
+- Expanded trend analysis, including using machine learning (predicting the hottest technologies)
+
+## Additional information
+The project is being developed as a part of learning and acquiring new skills, during which I had to gather knowledge about:
+- Python programming
+- Web Scraping
+- ETL (Extract, Transform, Load)
+- databases (SQLite)
+- analysis and data visualization
+- tests
