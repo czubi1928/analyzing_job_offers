@@ -1,35 +1,58 @@
+import os
 import sqlite3
+
 import pandas as pd
 
 
 class Database:
-    def __init__(self, logger, db_name, db_structure):
+    def __init__(self, logger, db_name="job_offers.db", db_folder="data",
+                 structure_location=os.path.join("data", "database_structure.sql")):
         self.logger = logger
-        self.connection = sqlite3.connect(db_name)
-        self.cursor = self.connection.cursor()
-        self.create_structure(db_structure)
 
-        # Pobierz informacje o kolumnach w tabeli job_offers
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        self.connection = sqlite3.connect(os.path.join(project_root, db_folder, db_name))
+        self.cursor = self.connection.cursor()
+        self.create_structure(os.path.join(project_root, structure_location))
+
+        # Get information about the columns in the job_offers table
         self.fields = [
             row[1] for row in self.cursor.execute("PRAGMA table_info(job_offers)")
             if row[1] not in ('id', 'position')  # pomijamy 'id' i 'position', jeśli nie wstawiamy do nich danych
         ]
 
-    def create_structure(self, db_structure):
-        with open(db_structure, 'r') as sql_file:
+    def create_structure(self, structure):
+        with open(structure, 'r') as sql_file:
             sql_script = sql_file.read()
 
         try:
             self.cursor.executescript(sql_script)
             self.connection.commit()
-            self.logger.debug(f"Database structure from file {db_structure} was created successfully!")
+            self.logger.info(f"Database structure from file {structure} was created successfully!")
         except (sqlite3.Error, AttributeError):
-            self.logger.info(f"The database from file {db_structure} already exists!")
+            self.logger.info(f"The database from file {structure} already exists!")
         except (sqlite3.Error, FileNotFoundError) as e:
-            self.logger.error(f"Error while creating database structure: {e}")
+            self.logger.error(f"Error while creating database structure: {e}.")
+
+    def execute_query(self, query):
+        try:
+            self.cursor.execute(query)
+            self.connection.commit()
+            self.logger.info(f"Query executed successfully: {query}")
+
+            return self.cursor.fetchall()
+        except sqlite3.Error as e:
+            self.logger.error(f"Error while executing query: {e}")
+
+            return None
+
+    def fetch_all_offers(self):
+        query = "SELECT * FROM job_offers;"
+        df = pd.read_sql_query(query, self.connection)
+
+        return df
 
     def insert_job_offer(self, offer_data):
-        # Budujemy zapytanie SQL i placeholders na podstawie listy fields
+        # We build a SQL query and placeholders based on a list of fields
         columns = ', '.join(self.fields)
         placeholders = ', '.join(['?' for _ in self.fields])
 
@@ -39,8 +62,8 @@ class Database:
     		) VALUES({placeholders});
     	"""
 
-        # Generujemy krotkę wartości w oparciu o klucze z offer_data
-        # Załóżmy, że offer_data zawiera wartości dla wszystkich kluczy w self.fields
+        # We generate a tuple of values based on the keys from offer_data
+        # Assume that offer_data contains values for all keys in self.fields
         values = tuple(offer_data[field] for field in self.fields)
 
         # self.logger.debug(f"TEST - {values} // {offer_data['location']}")
@@ -48,31 +71,33 @@ class Database:
         try:
             self.cursor.execute(insert_data_query, values)
             self.connection.commit()
-            self.logger.info(f"The offer \"{offer_data['title']}\" has been added to the database!")
+            self.logger.info(
+                f"The offer \"{offer_data['company']}, {offer_data['title']}, {offer_data['location'].capitalize()}\""
+                f"has been added to the database!")
         except sqlite3.IntegrityError as e:
             self.logger.warning(f"Duplicate entry or integrity error: {e}")
         except sqlite3.Error as e:
             self.logger.error(f"Database error: {e}")
 
     def insert_job_offers_batch(self, offers_data):
-        # Budujemy zapytanie SQL z placeholderami
+        # We are building a SQL query with placeholders
         columns = ', '.join(self.fields)
         placeholders = ', '.join(['?' for _ in self.fields])
 
         insert_data_query = f"""
-            INSERT INTO job_offers (
+            INSERT OR IGNORE INTO job_offers (
                 {columns}
             ) VALUES ({placeholders});
         """
 
-        # Tworzymy listę wartości na podstawie danych wejściowych
+        # We create a list of values based on the input data
         values = [
             tuple(offer[field] for field in self.fields)
             for offer in offers_data
         ]
 
         try:
-            # Wykonujemy batch insert
+            # We are performing a batch insert
             self.cursor.executemany(insert_data_query, values)
             self.connection.commit()
             self.logger.info(f"{len(offers_data)} job offers have been added to the database!")
@@ -83,13 +108,13 @@ class Database:
 
     def remove_older_duplicates(self):
         """
-        Usuwa starsze duplikaty z tabeli job_offers na podstawie kolumn
+        Removes older duplicates from the job_offers table based on columns
         (title, company, category, location, source, link, operating_mode),
-        zostawiając wyłącznie rekord z najwyższą (najświeższą) wartością date_add.
+        leaving only the record with the highest (most recent) date_add value.
 
-        Działanie:
-        1) Podzapytanie grupuje oferty po ww. kolumnach i wybiera MAX(date_add) jako max_date.
-        2) Usuwamy wszystkie rekordy, których rowid nie należy do zestawu 'najświeższych' w każdej grupie.
+        Action:
+        1) The subquery groups the listings by the above columns and selects MAX(date_add) as max_date.
+        2) We remove all records whose rowid does not belong to the 'freshest' set in each group.
         """
         query = """
         DELETE FROM job_offers
@@ -128,14 +153,14 @@ class Database:
 
     def create_temp_table(self):
         """
-        Usuwa tabelę tymczasową, jeśli istnieje, a następnie tworzy pustą tabelę
-        o tej samej strukturze co 'job_offers'.
+        Deletes the temporary table, if it exists, and then creates an empty table
+        with the same structure as 'job_offers'.
         """
         try:
             self.cursor.execute("DROP TABLE IF EXISTS job_offers_temp;")
 
-            # Stworzymy pustą tabelę tymczasową na podstawie job_offers (bez danych)
-            # Metoda 1: CREATE TABLE ... AS SELECT (nie przenosząc rekordów)
+            # We will create an empty temporary table based on job_offers (without data)
+            # Method 1: CREATE TABLE ... AS SELECT (without moving the records)
             create_temp = """
                 CREATE TABLE job_offers_temp AS
                 SELECT *
@@ -163,14 +188,13 @@ class Database:
             operating_modes=None
     ):
         """
-        Czyści tabelę tymczasową (lub od razu ją tworzy)
-        i wstawia do niej rekordy z 'job_offers',
-        uwzględniając przekazane filtry w klauzuli WHERE.
+        Clears the temporary table (or creates it right away)
+        and inserts records from 'job_offers' into it,
+        taking into account the passed filters in the WHERE clause.
         """
-        # Opcjonalnie możesz ponownie wywołać create_temp_table() za każdym razem:
+        # Optionally, you can call create_temp_table() again each time:
         self.create_temp_table()
-
-        # Teraz budujemy dynamicznie klauzulę WHERE
+        # Now we are dynamically building a WHERE clause.
         conditions = []
         params = []
 
@@ -217,6 +241,7 @@ class Database:
             FROM job_offers
             {where_clause};
         """
+        self.logger.debug(f"Query: {insert_query}")
 
         try:
             self.cursor.execute(insert_query, params)
@@ -233,7 +258,7 @@ class Database:
             ORDER BY category;
         """
         df = pd.read_sql_query(query, self.connection)
-        # Zwracamy listę kategorii
+        # We return a list of categories
         return df['category'].tolist()
 
     def get_unique_locations(self):
@@ -360,13 +385,13 @@ class Database:
 
     def get_technology_with_levels_sorted(self):
         """
-        Zwraca DataFrame z kolumnami:
+        Returns a DataFrame with columns:
           - technology
           - skill_level
-          - total_offers      (dla pary (technology, skill_level))
-          - total_for_tech    (dla całej technologii, bez względu na level)
-        Posortowane tak, że najpopularniejsze technologie (globalnie) są najwyżej,
-        a w obrębie technologii poziomy też są sortowane malejąco.
+          - total_offers (for a pair (technology, skill_level))
+          - total_for_tech (for all technology, regardless of level)
+        Sorted so that the most popular technologies (globally) are the highest,
+        and within technologies, levels are also sorted in descending order.
         """
         query = """
         WITH skill_count AS (SELECT json_each.key AS technology,

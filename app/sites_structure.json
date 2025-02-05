@@ -1,0 +1,46 @@
+{
+  "justjoin.it": {
+    "title": {
+      "tag": "div",
+      "class": "MuiBox-root css-s52zl1"
+    },
+    "company": {
+      "tag": "h2",
+      "class": "MuiTypography-root MuiTypography-body1 css-77dijd"
+    },
+    "location": {
+      "tag": "span",
+      "class": "css-1o4wo1x"
+    },
+    "category": {
+      "tag": "div",
+      "class": "MuiBox-root css-1aq4u2o"
+    },
+    "date_add": {
+      "tag": "script",
+      "class": "application/ld+json"
+    },
+    "salary": {
+      "tag": "div",
+      "class": "MuiBox-root css-1km0bek",
+      "salary_tag": "span",
+      "salary_class": "css-1pavfqb",
+      "contract_tag": "span",
+      "contract_class": "css-1waow8k"
+    },
+    "details": {
+      "tag": "div",
+      "class": "MuiBox-root css-1k7fv8q",
+      "child_tag": "div",
+      "child_class": "MuiBox-root css-ktfb40"
+    },
+    "technology_level": {
+      "tag": "div",
+      "class": "MuiBox-root css-jfr3nf",
+      "technology_tag": "h4",
+      "technology_class": "MuiTypography-root MuiTypography-subtitle2 css-b849nv",
+      "level_tag": "span",
+      "level_class": "MuiTypography-root MuiTypography-subtitle4 css-3d5s10"
+    }
+  }
+}
