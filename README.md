@@ -48,14 +48,14 @@ Przejdź do katalogu `notebooks` i przy użyciu terminala i uruchom Jupyter Note
 > Jeżeli Twój plik z linkami zawiera nie tylko oferty, użyj funkcji `sort_raw_offers_file()` w klasie `Utilities` w lokalizacji `app/utilities.py`, aby odfiltrować tylko oferty pracy
 
 ## Plany rozwoju
-- Obsługa wielu stron z ofertami pracy i źródeł danych (Pracuj.pl, LinkedIn, No Fluff Jobs)
-- Zaprojektowanie struktur, optymalizacja oraz wdrożenie innych baz danych (PostgreSQL, MongoDB, Apache Cassandra)
+- [ ] Obsługa wielu stron z ofertami pracy i źródeł danych (Pracuj.pl, LinkedIn, No Fluff Jobs)
+- [ ] Zaprojektowanie struktur, optymalizacja oraz wdrożenie innych baz danych (PostgreSQL, MongoDB, Apache Cassandra)
 - Wdrożenie agenta AI w celu:
-  - rozmowy z użytkownikiem w celu wyciągnięcia wniosków z przeanalizowanych ofert pracy
-  - łatwiejsze filtrowanie kluczowych wniosków z ofert
-- Rozszerzenie wizualizacji o nowe funkcje i interaktywne wykresy
-- Stworzenie GUI do obsługi aplikacji
-- Rozbudowana analiza trendów, m.in. z wykorzystaniem machine learning (przewidywanie najgorętszych technologii)
+  - [ ] rozmowy z użytkownikiem w celu wyciągnięcia wniosków z przeanalizowanych ofert pracy
+  - [ ] łatwiejsze filtrowanie kluczowych wniosków z ofert
+- [ ] Rozszerzenie wizualizacji o nowe funkcje i interaktywne wykresy
+- [ ] Stworzenie GUI do obsługi aplikacji
+- [ ] Rozbudowana analiza trendów, m.in. z wykorzystaniem machine learning (przewidywanie najgorętszych technologii)
 
 ## Informacje dodatkowe
 Projekt jest rozwijany w ramach nauki i zdobywania nowych umiejętności, podczas którego musiałem zebrać wiedzę na temat:
@@ -107,14 +107,14 @@ Navigate to the `notebooks` directory and using a terminal and launch Jupyter No
 > If your link file contains more than just listings, use the `sort_raw_offers_file()` function in the `Utilities` class in the `app/utilities.py` location to filter out only job listings
 
 ## Development plans
-- Supporting multiple job sites and data sources (Pracuj.pl, LinkedIn, No Fluff Jobs)
-- Design of structures, optimization and implementation of other databases (PostgreSQL, MongoDB, Apache Cassandra)
+- [ ] Supporting multiple job sites and data sources (Pracuj.pl, LinkedIn, No Fluff Jobs)
+- [ ] Design of structures, optimization and implementation of other databases (PostgreSQL, MongoDB, Apache Cassandra)
 - Implementation of AI agent to:
-  - talk to users to draw conclusions from analyzed job offers
-  - easier filtering of key findings from offers
-- Enhance visualization with new features and interactive charts
-- Creation of a GUI to operate the application
-- Expanded trend analysis, including using machine learning (predicting the hottest technologies)
+  - [ ] talk to users to draw conclusions from analyzed job offers
+  - [ ] easier filtering of key findings from offers
+- [ ] Enhance visualization with new features and interactive charts
+- [ ] Creation of a GUI to operate the application
+- [ ] Expanded trend analysis, including using machine learning (predicting the hottest technologies)
 
 ## Additional information
 The project is being developed as a part of learning and acquiring new skills, during which I had to gather knowledge about:

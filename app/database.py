@@ -10,14 +10,16 @@ class Database:
         self.logger = logger
 
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
         self.connection = sqlite3.connect(os.path.join(project_root, db_folder, db_name))
         self.cursor = self.connection.cursor()
         self.create_structure(os.path.join(project_root, structure_location))
 
         # Get information about the columns in the job_offers table
         self.fields = [
-            row[1] for row in self.cursor.execute("PRAGMA table_info(job_offers)")
-            if row[1] not in ('id', 'position')  # pomijamy 'id' i 'position', jeśli nie wstawiamy do nich danych
+            row[1] for row in
+            self.cursor.execute("PRAGMA table_info(job_offers)")
+            if row[1] not in ('id', 'position')
         ]
 
     def create_structure(self, structure):
@@ -27,9 +29,11 @@ class Database:
         try:
             self.cursor.executescript(sql_script)
             self.connection.commit()
-            self.logger.info(f"Database structure from file {structure} was created successfully!")
+            self.logger.info(
+                f"Database structure from file {structure} was created successfully!")
         except (sqlite3.Error, AttributeError):
-            self.logger.info(f"The database from file {structure} already exists!")
+            self.logger.info(
+                f"The database from file {structure} already exists!")
         except (sqlite3.Error, FileNotFoundError) as e:
             self.logger.error(f"Error while creating database structure: {e}.")
 
@@ -57,16 +61,17 @@ class Database:
         placeholders = ', '.join(['?' for _ in self.fields])
 
         insert_data_query = f"""
-    		INSERT INTO job_offers (
-    			{columns}
-    		) VALUES({placeholders});
-    	"""
+            INSERT INTO job_offers(
+                {columns}
+            )
+            VALUES(
+                {placeholders}
+            );
+        """
 
         # We generate a tuple of values based on the keys from offer_data
         # Assume that offer_data contains values for all keys in self.fields
         values = tuple(offer_data[field] for field in self.fields)
-
-        # self.logger.debug(f"TEST - {values} // {offer_data['location']}")
 
         try:
             self.cursor.execute(insert_data_query, values)
@@ -75,36 +80,169 @@ class Database:
                 f"The offer \"{offer_data['company']}, {offer_data['title']}, {offer_data['location'].capitalize()}\""
                 f"has been added to the database!")
         except sqlite3.IntegrityError as e:
-            self.logger.warning(f"Duplicate entry or integrity error: {e}")
+            if offer_data['date_add']:
+                if "job_offers.title, job_offers.company, job_offers.location, job_offers.category" in str(
+                        e):
+                    update_data_query = """
+                        UPDATE job_offers
+                        SET position       = ?,
+                            date_add       = ?,
+                            salary         = ?,
+                            experience     = ?,
+                            employment     = ?,
+                            operating_mode = ?,
+                            tech_stack     = ?,
+                            link           = ?,
+                            source         = ?
+                        WHERE title = ?
+                          AND company = ?
+                          AND location = ?
+                          AND category = ?;
+                    """
+
+                    self.cursor.execute(
+                        "SELECT date_add FROM job_offers WHERE title = ? AND company = ? AND location = ? "
+                        "AND category = ?;",
+                        (offer_data['title'], offer_data['company'],
+                         offer_data['location'], offer_data['category'],))
+                    old_row = self.cursor.fetchone()
+
+                    from datetime import datetime
+
+                    let_update = False
+                    new_date = datetime.strptime(offer_data['date_add'],
+                                                 "%Y-%m-%d %H:%M:%S.%f")
+
+                    if old_row[0]:
+                        old_date = datetime.strptime(old_row[0],
+                                                     "%Y-%m-%d %H:%M:%S.%f")
+
+                        if old_date < new_date:
+                            let_update = True
+                    else:
+                        let_update = True
+
+                    if let_update:
+                        self.cursor.execute(update_data_query,
+                                            [offer_data['position'],
+                                             offer_data['date_add'],
+                                             offer_data['salary'],
+                                             offer_data['experience'],
+                                             offer_data['employment'],
+                                             offer_data['operating_mode'],
+                                             offer_data['tech_stack'],
+                                             offer_data['link'],
+                                             offer_data['source'],
+                                             offer_data['title'],
+                                             offer_data['company'],
+                                             offer_data['location'],
+                                             offer_data['category'], ])
+                        self.connection.commit()
+                        self.logger.info(
+                            f"The offer \"{offer_data['company']}, {offer_data['title']}, "
+                            f"{offer_data['location'].capitalize()}\" has been updated!")
+                elif "job_offers.link" in str(e):
+                    update_data_query = """
+                                            UPDATE job_offers
+                                            SET title          = ?
+                                                company        = ?
+                                                location       = ?
+                                                category       = ?,
+                                                position       = ?,
+                                                date_add       = ?,
+                                                salary         = ?,
+                                                experience     = ?,
+                                                employment     = ?,
+                                                operating_mode = ?,
+                                                tech_stack     = ?,
+                                                source         = ?
+                                            WHERE link = ?;
+                                        """
+
+                    self.cursor.execute(
+                        "SELECT date_add FROM job_offers WHERE link = ?;",
+                        (offer_data['link'],))
+                    old_row = self.cursor.fetchone()
+
+                    from datetime import datetime
+
+                    let_update = False
+                    new_date = datetime.strptime(offer_data['date_add'],
+                                                 "%Y-%m-%d %H:%M:%S.%f")
+
+                    if old_row[0]:
+                        old_date = datetime.strptime(old_row[0],
+                                                     "%Y-%m-%d %H:%M:%S.%f")
+
+                        if old_date < new_date:
+                            let_update = True
+                    else:
+                        let_update = True
+
+                    if let_update:
+                        self.cursor.execute(update_data_query,
+                                            [offer_data['title'],
+                                             offer_data['company'],
+                                             offer_data['location'],
+                                             offer_data['category'],
+                                             offer_data['position'],
+                                             offer_data['date_add'],
+                                             offer_data['salary'],
+                                             offer_data['experience'],
+                                             offer_data['employment'],
+                                             offer_data['operating_mode'],
+                                             offer_data['tech_stack'],
+                                             offer_data['source'],
+                                             offer_data['link'], ])
+                        self.connection.commit()
+                        self.logger.info(
+                            f"The offer \"{offer_data['company']}, {offer_data['title']}, "
+                            f"{offer_data['location'].capitalize()}\" has been updated!")
+            else:
+                self.logger.warning(f"Duplicate entry or integrity error: {e}")
         except sqlite3.Error as e:
             self.logger.error(f"Database error: {e}")
 
     def insert_job_offers_batch(self, offers_data):
-        # We are building a SQL query with placeholders
+        # Columns and placeholders for the batch insert
         columns = ', '.join(self.fields)
         placeholders = ', '.join(['?' for _ in self.fields])
 
+        unique_columns = ["title", "company", "location", "category"]
+
+        update_columns = [field for field in self.fields if
+                          field not in unique_columns]
+
+        # Building SQL parts for ON CONFLICT TO UPDATE
+        update_clause = ', '.join(
+            [f"{col} = excluded.{col}" for col in update_columns])
+
+        where_clause = ' AND '.join(
+            [f"job_offers.{col} = excluded.{col}" for col in unique_columns])
+
         insert_data_query = f"""
-            INSERT OR IGNORE INTO job_offers (
-                {columns}
-            ) VALUES ({placeholders});
+            INSERT INTO job_offers ({columns})
+            VALUES ({placeholders})
+            ON CONFLICT (title, company, location, category)
+            DO UPDATE SET 
+            {update_clause}
+            WHERE excluded.date_add IS NOT NULL 
+                AND (job_offers.date_add IS NULL OR job_offers.date_add < excluded.date_add)
+                AND {where_clause};
         """
 
-        # We create a list of values based on the input data
-        values = [
-            tuple(offer[field] for field in self.fields)
-            for offer in offers_data
-        ]
+        # Create list of tuples with values for each offer
+        values = [tuple(offer[field] for field in self.fields) for offer in
+                  offers_data]
 
         try:
-            # We are performing a batch insert
             self.cursor.executemany(insert_data_query, values)
             self.connection.commit()
-            self.logger.info(f"{len(offers_data)} job offers have been added to the database!")
-        except sqlite3.IntegrityError as e:
-            self.logger.warning(f"Integrity error during batch insert: {e}")
+            self.logger.info(
+                f"{len(offers_data)} job offers have been added or updated in the database!")
         except sqlite3.Error as e:
-            self.logger.error(f"Database error during batch insert: {e}")
+            self.logger.error(
+                f"Database error during batch insert/update: {e}")
 
     def remove_older_duplicates(self):
         """
@@ -147,7 +285,8 @@ class Database:
         try:
             self.cursor.execute(query)
             self.connection.commit()
-            self.logger.info("Older duplicates have been removed successfully.")
+            self.logger.info(
+                "Older duplicates have been removed successfully.")
         except Exception as e:
             self.logger.error(f"Error while removing duplicates: {e}")
 
@@ -258,6 +397,7 @@ class Database:
             ORDER BY category;
         """
         df = pd.read_sql_query(query, self.connection)
+
         # We return a list of categories
         return df['category'].tolist()
 
@@ -269,6 +409,7 @@ class Database:
             ORDER BY location;
         """
         df = pd.read_sql_query(query, self.connection)
+
         return df['location'].tolist()
 
     def get_unique_positions(self):
@@ -279,6 +420,7 @@ class Database:
             ORDER BY position;
         """
         df = pd.read_sql_query(query, self.connection)
+
         return df['position'].tolist()
 
     def get_unique_experiences(self):
@@ -289,6 +431,7 @@ class Database:
             ORDER BY experience;
         """
         df = pd.read_sql_query(query, self.connection)
+
         return df['experience'].tolist()
 
     def get_unique_operating_modes(self):
@@ -299,6 +442,7 @@ class Database:
             ORDER BY operating_mode;
         """
         df = pd.read_sql_query(query, self.connection)
+
         return df['operating_mode'].tolist()
 
     def get_offers_by_location(self):
@@ -341,7 +485,8 @@ class Database:
             experience,
             UPPER(JSON_EXTRACT(salary, '$.permanent.currency')) AS currency,
             NULL AS b2b_value,
-            ROUND((JSON_EXTRACT(salary, '$.permanent.from') + JSON_EXTRACT(salary, '$.permanent.to')) / 2) AS permanent_value
+            ROUND((JSON_EXTRACT(salary, '$.permanent.from') + JSON_EXTRACT(salary, '$.permanent.to')) / 2) 
+                AS permanent_value
           FROM job_offers_temp
           WHERE salary IS NOT NULL
             AND JSON_EXTRACT(salary, '$.permanent.from') IS NOT NULL

@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS job_offers
     employment     TEXT NOT NULL,
     operating_mode TEXT NOT NULL,
     tech_stack     BLOB,
-    link           TEXT UNIQUE,
+    link           TEXT,
     source         TEXT NOT NULL,
     --input_source     TEXT NOT NULL,
-    UNIQUE (title, company, location)
+    UNIQUE (title, company, location, category)
 );
 
 CREATE INDEX idx_offers_category
@@ -31,8 +31,8 @@ CREATE INDEX idx_offers_experience
 CREATE INDEX idx_offers_date_add
     ON job_offers (date_add);
 
-CREATE UNIQUE INDEX job_offers_uindex_link
-    ON job_offers (link);
+--CREATE UNIQUE INDEX job_offers_uindex_link
+    --ON job_offers (link);
 
-CREATE UNIQUE INDEX job_offers_uindex_offer
-    ON job_offers (title, company, category, location, source, link, date_add, operating_mode);
+--CREATE UNIQUE INDEX job_offers_uindex_offer
+    --ON job_offers (title, company, category, location, source, link, date_add, operating_mode);

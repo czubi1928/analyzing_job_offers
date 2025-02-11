@@ -13,7 +13,8 @@ class Extraction:
         self.sites_structure = sites_structure
         self.downloaded_offers = downloaded_offers
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, "
+                          "like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
 
         self.tech_levels = {
@@ -244,9 +245,8 @@ class Extraction:
                             try:
                                 data = json.loads(cleaned_json)
 
-                                job_offer_data["date_add"] = data.get("datePosted").strip().lower().replace('t',
-                                                                                                            ' ').replace(
-                                    'z', '')
+                                job_offer_data["date_add"] = (data.get("datePosted").strip().lower().replace('t', ' ')
+                                                              .replace('z', ''))
                             except json.JSONDecodeError:
                                 pass
                     elif column == "salary":

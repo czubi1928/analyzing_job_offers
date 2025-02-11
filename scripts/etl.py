@@ -76,7 +76,8 @@ def etl() -> None:
     logger = Logger(log_folder=os.path.join(project_root, 'logs'))
     db = Database(logger, db_folder=os.path.join(project_root, 'data'))
 
-    path_to_offers = os.path.join(project_root, 'data', 'raw', 'downloaded_offers')
+    path_to_offers = os.path.join(project_root, 'data', 'raw', 'downloaded_offers',
+                                  'justjoinit-job-offers-data-2021-10-2023-09')
 
     logger.info("The ETL process has begun...")
 
