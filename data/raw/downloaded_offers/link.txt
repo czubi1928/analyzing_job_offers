@@ -1,7 +1,2 @@
 # used
 https://www.kaggle.com/datasets/jszafranqb/justjoinit-job-offers-data-2021-10-2023-09
-https://huggingface.co/datasets/fantastic-jobs/7-million-jobs
-
-# to check
-https://www.kaggle.com/datasets/asaniczka/1-3m-linkedin-jobs-and-skills-2024?resource=download
-https://www.kaggle.com/datasets/arshkon/linkedin-job-postings

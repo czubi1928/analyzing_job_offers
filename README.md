@@ -25,7 +25,7 @@
 ## Wstęp
 Projekt służy do **analizy** i **wizualizacji** danych o ofertach pracy w branży IT.
 W obecnej wersji:
-- Obsługiwane są głównie oferty z portalu [JustJoinIT](https://justjoin.it/)
+- Obsługiwane są tylko oferty z portalu [JustJoinIT](https://justjoin.it/)
 - Dane mogą być pobierane zarówno z **plików JSON** (dołączonych lub pobranych z Kaggle), jak i za pomocą przygotowanej listy **linków** do ogłoszeń
 > [!IMPORTANT]
 > **Pliki JSON** dotyczą przedziału od **2021-10 do 2023-09**  
@@ -84,7 +84,7 @@ Projekt jest rozwijany w ramach nauki i zdobywania nowych umiejętności, podcza
 ## Introduction
 The project is used for **analysis** and **visualization** of job offer data in the IT industry.
 In the current version:
-- Mainly listings from [JustJoinIT](https://justjoin.it/) are supported
+- Only listings from [JustJoinIT](https://justjoin.it/) are supported
 - Data can be retrieved both from **JSON files** (attached or downloaded from Kaggle) and by using a prepared list of **links** to ads
 > [!IMPORTANT]
 > The **JSON files** are for the period from **2021-10 to 2023-09**.  
