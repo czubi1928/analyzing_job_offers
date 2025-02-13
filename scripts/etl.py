@@ -79,7 +79,7 @@ def etl() -> None:
     path_to_offers = os.path.join(project_root, 'data', 'raw', 'downloaded_offers',
                                   'justjoinit-job-offers-data-2021-10-2023-09')
 
-    logger.info("The ETL process has begun...")
+    logger.debug("The ETL process has begun...")
 
     """
     Searches a folder recursively for JSON files.
