@@ -46,21 +46,24 @@ def main():
     ex = Extraction(logger, db, offers_sites, downloaded_offers)
 
     # extraction for files
-    for path in os.listdir(downloaded_offers):
-        # site = ut.is_valid_url(offer, offers_sites)
-        site = "justjoin.it"  # na sztywno narazie
+    try:
+        for path in os.listdir(downloaded_offers):
+            # site = ut.is_valid_url(offer, offers_sites)
+            site = "justjoin.it"  # na sztywno narazie
 
-        if site is not None:
-            full_path = os.path.join(downloaded_offers, path)
-            ex.file_extraction(full_path, site)
-
+            if site is not None:
+                full_path = os.path.join(downloaded_offers, path)
+                ex.file_extraction(full_path, site)
+    except FileNotFoundError as e:
+        logger.warning(f"There is no file with downloaded sites: {e}")
+    """
     # extraction for sites
     for offer in offers:
         site = ut.is_valid_url(offer, offers_sites)
 
         if site is not None:
             ex.link_extraction(offer, site)
-
+    """
     db.close_connection()
 
 

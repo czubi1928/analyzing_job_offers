@@ -6,6 +6,29 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def find_original_url(file_path):
+    with open(file_path, "r", encoding="utf-8") as file:
+        soup = BeautifulSoup(file, "html.parser")
+
+    # Szukamy <link rel="canonical">
+    canonical = soup.find("link", rel="canonical")
+    if canonical and canonical.has_attr("href"):
+        return canonical["href"]
+
+    # Szukamy <meta property="og:url">
+    og_url = soup.find("meta", property="og:url")
+    if og_url and og_url.has_attr("content"):
+        return og_url["content"]
+
+    # Szukamy w komentarzach (np. 'Saved from')
+    for comment in soup.find_all(string=lambda text: isinstance(text, str) and "Saved from" in text):
+        url = comment.split("Saved from")[-1].strip()
+        if url.startswith("http"):
+            return url
+
+    return "Nie znaleziono oryginalnego URL-a."
+
+
 class Extraction:
     def __init__(self, logger, db, sites_structure, downloaded_offers):
         self.logger = logger
@@ -85,7 +108,7 @@ class Extraction:
             "operating_mode": None,
             "tech_stack": None,
             "link": url,
-            "source": offer_site
+            "source": "url"
         }
 
         try:
@@ -97,29 +120,20 @@ class Extraction:
                     if column == "title":
                         job_offer_data["title"] = soup.find(tag_name, class_=class_name).find("h1").text.strip()
                     if column == "date_add":
-                        """
-                        json_ld_tags = soup.find_all(tag_name)
+                        match = re.search(r'\\"publishedAt\\":\\"(.*?)\\"', response.text)
 
-                        for tag in json_ld_tags:
-                            # Pobierz tekst z tagu
-                            tag_text = tag.string or tag.text
-                            if tag_text:  # Upewnij się, że tekst istnieje
-                                # Wzorzec do wyszukiwania "publishedAt"
-                                pattern = r'"publishedAt"'
-                                matches = re.findall(pattern, tag_text)
-                                if matches:
-                                    print("Znalezione daty:")
-                                    for date in matches:
-                                        print(date)
-                                else:
-                                    print("Brak daty w tym tagu.")
-                        """
+                        if match:
+                            published_at = match.group(1)  # Pobieramy tylko datę
+                            formatted_date = published_at.replace("T", " ").replace("Z", "")
+                            job_offer_data["date_add"] = formatted_date
                     elif column == "salary":
                         salary_tag_name = selector.get("salary_tag")
                         salary_class_name = selector.get("salary_class")
                         contract_tag_name = selector.get("contract_tag")
                         contract_class_name = selector.get("contract_class")
                         elements = soup.find_all(tag_name, class_=class_name)
+
+                        existing_salary = {}
 
                         for element in elements:
                             salary = element.find(salary_tag_name, class_=salary_class_name).text.strip()
@@ -145,12 +159,13 @@ class Extraction:
                             contract_type = contract_match.group(1)
 
                             # return min_salary, max_salary, currency, contract_type
-                            job_offer_data["salary"] = json.dumps({
-                                'type': contract_type,
+                            existing_salary[contract_type] = {
                                 'from': min_salary,
                                 'to': max_salary,
                                 'currency': currency
-                            }).lower()
+                            }
+
+                        job_offer_data["salary"] = json.dumps(existing_salary).lower()
                     elif column == "details":
                         child_tag_name = selector.get("child_tag")
                         child_class_name = selector.get("child_class")
@@ -201,9 +216,6 @@ class Extraction:
             self.logger.error(f"Unexpected error while extracting data: {e}")
 
     def file_extraction(self, file_path, offer_site):
-        if file_path == 'downloaded_sites\\bi_data_engineer_-_tylko.html':
-            print('a')
-
         try:
             with open(file_path, "r", encoding="utf-8") as file:
                 soup = BeautifulSoup(file, "html.parser")
@@ -223,8 +235,8 @@ class Extraction:
             "employment": None,
             "operating_mode": None,
             "tech_stack": None,
-            "link": None,
-            "source": offer_site
+            "link": find_original_url(file_path),
+            "source": "file"
         }
 
         try:
@@ -236,25 +248,23 @@ class Extraction:
                     if column == "title":
                         job_offer_data["title"] = soup.find(tag_name, class_=class_name).find("h1").text.strip()
                     if column == "date_add":
-                        json_ld_tag = soup.find(tag_name, type=class_name)
+                        with open(file_path, "r", encoding="utf-8") as file:
+                            response_text = file.read()
 
-                        if json_ld_tag:
-                            raw_json = json_ld_tag.string.strip()
-                            cleaned_json = re.sub(r'[\x00-\x1F\x7F]', '', raw_json)
+                        match = re.search(r'\\"publishedAt\\":\\"(.*?)\\"', response_text)
 
-                            try:
-                                data = json.loads(cleaned_json)
-
-                                job_offer_data["date_add"] = (data.get("datePosted").strip().lower().replace('t', ' ')
-                                                              .replace('z', ''))
-                            except json.JSONDecodeError:
-                                pass
+                        if match:
+                            published_at = match.group(1)  # Pobieramy tylko datę
+                            formatted_date = published_at.replace("T", " ").replace("Z", "")
+                            job_offer_data["date_add"] = formatted_date
                     elif column == "salary":
                         salary_tag_name = selector.get("salary_tag")
                         salary_class_name = selector.get("salary_class")
                         contract_tag_name = selector.get("contract_tag")
                         contract_class_name = selector.get("contract_class")
                         elements = soup.find_all(tag_name, class_=class_name)
+
+                        existing_salary = {}
 
                         for element in elements:
                             salary = element.find(salary_tag_name, class_=salary_class_name).text.strip()
@@ -280,12 +290,13 @@ class Extraction:
                             contract_type = contract_match.group(1)
 
                             # return min_salary, max_salary, currency, contract_type
-                            job_offer_data["salary"] = json.dumps({
-                                'type': contract_type,
+                            existing_salary[contract_type] = {
                                 'from': min_salary,
                                 'to': max_salary,
                                 'currency': currency
-                            }).lower()
+                            }
+
+                        job_offer_data["salary"] = json.dumps(existing_salary).lower()
                     elif column == "details":
                         child_tag_name = selector.get("child_tag")
                         child_class_name = selector.get("child_class")
