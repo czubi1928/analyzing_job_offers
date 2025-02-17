@@ -44,8 +44,12 @@ W obecnej wersji:
    - Stwórz plik `links.txt` w katalogu `data` i wklej linki do ofert z JustJoinIT. Kolejno uruchom `main.py` w katalogu `app`, który pobierze i przetworzy oferty do bazy danych
 5. **Uruchom Jupyter Notebook**:\
 Przejdź do katalogu `notebooks` i przy użyciu terminala i uruchom Jupyter Notebook za pomocą komendy `jupyter notebook`. Możesz także odpalić ręcznie plik `jupyter_notebook_launcher.bat`. Uruchomi się domyślna przeglądarka z interfejsem Jupyter – tam znajdziesz m.in. plik `job_analysis.ipynb`, który można otworzyć w celu przeglądu i wizualizacji danych. Trzeba pamiętać, że trzeba go uruchomić od samego początku aż do końca (wszystkie "cell'e")
+
 > [!TIP]
 > Jeżeli Twój plik z linkami zawiera nie tylko oferty, użyj funkcji `sort_raw_offers_file()` w klasie `Utilities` w lokalizacji `app/utilities.py`, aby odfiltrować tylko oferty pracy
+
+> [!TIP]
+> Istnieje także plik `Dockerfile` do odpalenia aplikacji w kontenerze Docker za pomocą komendy `docker build -t analyzing_job_offers .` do stworzenia obrazu
 
 ## Plany rozwoju
 - [ ] Obsługa wielu stron z ofertami pracy i źródeł danych (Pracuj.pl, LinkedIn, No Fluff Jobs)
@@ -65,6 +69,9 @@ Projekt jest rozwijany w ramach nauki i zdobywania nowych umiejętności, podcza
 - baz danych (SQLite)
 - analizy oraz wizualizacji danych
 - testów
+- konteneryzacji
+
+Przetestowano na systemie Windows 11
 
 ---
 
@@ -103,8 +110,12 @@ In the current version:
    - Create a file `links.txt` in folder `data` and paste links to your listings from JustJoinIT. Next, run `main.py` in the `app` directory, which will download and process the listings to the database
 5. **Launch Jupyter Notebook**:\
 Navigate to the `notebooks` directory and using a terminal and launch Jupyter Notebook using the `jupyter notebook` command. You can also fire up the `jupyter_notebook_launcher.bat` file manually. It will launch the default browser with Jupyter interface - there you will find, among other things, the `job_analysis.ipynb` file, which you can open to review and visualize the data. Keep in mind that you need to run it from the very beginning all the way to the end (all “cells”)
+
 > [!TIP]
 > If your link file contains more than just listings, use the `sort_raw_offers_file()` function in the `Utilities` class in the `app/utilities.py` location to filter out only job listings
+
+> [!TIP]
+> Also exists file `Dockerfile`to launch application in container Docker using command `docker build -t analyzing_job_offers .` to create image
 
 ## Development plans
 - [ ] Supporting multiple job sites and data sources (Pracuj.pl, LinkedIn, No Fluff Jobs)
@@ -124,3 +135,6 @@ The project is being developed as a part of learning and acquiring new skills, d
 - databases (SQLite)
 - analysis and data visualization
 - tests
+- containerization
+
+Tested on Windows 11
