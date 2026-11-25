@@ -34,7 +34,7 @@ W obecnej wersji:
 
 ## Instrukcja obsługi
 1. **Pobierz repozytorium**:\
-```git clone https://github.com/TwojeKonto/analyzing_job_offers.git```
+```git clone https://github.com/czubi1928/analyzing_job_offers.git```
 2. **Przejdź do lokalizacji projektu**:\
 ```cd analyzing_job_offers```
 3. **Zainstaluj wymagane biblioteki**:\
@@ -100,7 +100,7 @@ In the current version:
 
 ## User Manual
 1. **Download the repository**:\
-```git clone https://github.com/TwojeKonto/analyzing_job_offers.git```
+```git clone https://github.com/czubi1928/analyzing_job_offers.git```
 2. **Go to project location**:\
 ```cd analyzing_job_offers```
 3. **Install the required libraries**:\
